@@ -119,14 +119,14 @@ library_management_system/
 
 Add screenshots here after running the application.
 
-- Login screen: `screenshots/login.png`
-- Dashboard: `screenshots/dashboard.png`
-- Books module: `screenshots/books.png`
-- Members module: `screenshots/members.png`
-- Issue books module: `screenshots/issue_books.png`
-- Reports module: `screenshots/reports.png`
-- Users module: `screenshots/users.png`
-- Settings module: `screenshots/settings.png`
+- Login screen: ![alt text](screenshots/login.png)
+- Dashboard: ![alt text](screenshots/dashboard.png)
+- Books module: ![alt text](screenshots/books.png)
+- Members module: ![alt text](screenshots/members.png)
+- Issue books module: ![alt text](screenshots/issue_books.png)
+- Reports module: ![alt text](screenshots/reports.png)
+- Users module: ![alt text](screenshots/users.png)
+- Settings module: ![alt text](screenshots/settings.png)
 
 ## Notes
 

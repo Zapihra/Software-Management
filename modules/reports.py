@@ -88,7 +88,7 @@ class ReportsFrame(BaseModuleFrame):
         self.tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
 
-    def _report_definitions(self) -> dict:
+    def report_definitions(self) -> dict:
         return {
             "Available Books": {
                 "columns": [
@@ -155,7 +155,7 @@ class ReportsFrame(BaseModuleFrame):
             },
         }
 
-    def _format_row(self, report_name: str, row: dict) -> tuple:
+    def format_row(self, report_name: str, row: dict) -> tuple:
         if report_name == "Available Books":
             return (
                 row["book_code"],
@@ -212,7 +212,7 @@ class ReportsFrame(BaseModuleFrame):
             row["join_date"],
         )
 
-    def _configure_tree(self, columns: list[str]) -> None:
+    def configure_tree(self, columns: list[str]) -> None:
         self.tree["columns"] = columns
         for item in self.tree.get_children():
             self.tree.delete(item)
@@ -222,11 +222,11 @@ class ReportsFrame(BaseModuleFrame):
 
     def load_report(self) -> None:
         report_name = self.report_var.get()
-        report_def = self._report_definitions()[report_name]
+        report_def = self.report_definitions()[report_name]
         self.current_columns = report_def["columns"]
         rows = report_def["loader"]()
-        self.current_rows = [self._format_row(report_name, row) for row in rows]
-        self._configure_tree(self.current_columns)
+        self.current_rows = [self.format_row(report_name, row) for row in rows]
+        self.configure_tree(self.current_columns)
         for row in self.current_rows:
             self.tree.insert("", "end", values=row)
         self.summary_label.configure(text=f"{len(self.current_rows)} records")

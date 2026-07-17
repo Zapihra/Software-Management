@@ -60,7 +60,7 @@ class BooksFrame(BaseModuleFrame):
         tk.Button(
             search_bar,
             text="Reset",
-            command=self._reset_search,
+            command=self.reset_search,
             bg=COLORS["secondary"],
             fg="white",
             activebackground="#475569",
@@ -175,12 +175,12 @@ class BooksFrame(BaseModuleFrame):
         form.columnconfigure(0, weight=1)
         form.columnconfigure(1, weight=1)
 
-    def _reset_search(self) -> None:
+    def reset_search(self) -> None:
         self.search_field_var.set("title")
         self.search_text_var.set("")
         self.load_data()
 
-    def _set_book_code(self) -> None:
+    def set_book_code(self) -> None:
         code = self.db.generate_book_code()
         self.book_code_entry.configure(state="normal")
         self.book_code_entry.delete(0, tk.END)
@@ -199,10 +199,10 @@ class BooksFrame(BaseModuleFrame):
             self.quantity_entry,
             self.shelf_entry,
         )
-        self._set_book_code()
+        self.set_book_code()
         self.tree.selection_remove(self.tree.selection())
 
-    def _collect_data(self) -> dict:
+    def collect_data(self) -> dict:
         return {
             "book_code": self.book_code_entry.get().strip(),
             "title": self.title_entry.get().strip(),
@@ -214,7 +214,7 @@ class BooksFrame(BaseModuleFrame):
             "shelf_location": self.shelf_entry.get().strip(),
         }
 
-    def _validate(self, data: dict) -> bool:
+    def validate_book(self, data: dict) -> bool:
         required = ["title", "author", "category", "publisher", "isbn", "quantity", "shelf_location"]
         for field in required:
             if not data[field]:
@@ -230,8 +230,8 @@ class BooksFrame(BaseModuleFrame):
         return True
 
     def add_book(self) -> None:
-        data = self._collect_data()
-        if not self._validate(data):
+        data = self.collect_data()
+        if not self.validate_book(data):
             return
         try:
             self.db.add_book(data)
@@ -245,8 +245,8 @@ class BooksFrame(BaseModuleFrame):
         if self.selected_book_id is None:
             messagebox.showwarning("Selection Required", "Select a book to update.")
             return
-        data = self._collect_data()
-        if not self._validate(data):
+        data = self.collect_data()
+        if not self.validate_book(data):
             return
         try:
             self.db.update_book(self.selected_book_id, data)
@@ -293,7 +293,7 @@ class BooksFrame(BaseModuleFrame):
         )
 
     def refresh_data(self) -> None:
-        self._set_book_code()
+        self.set_book_code()
         self.load_data()
 
     def sort_by(self, column: str) -> None:
@@ -304,7 +304,7 @@ class BooksFrame(BaseModuleFrame):
             self.sort_ascending = True
         self.load_data()
 
-    def on_select(self) -> None:
+    def on_select(self, event) -> None:
         selection = self.tree.selection()
         if not selection:
             return

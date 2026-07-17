@@ -35,7 +35,7 @@ class LoginFrame(tk.Frame):
 
         logo_frame = tk.Frame(inner, bg=COLORS["panel"])
         logo_frame.pack(pady=(0, 16))
-        self._add_logo(logo_frame)
+        self.add_logo(logo_frame)
 
         title = tk.Label(
             inner,
@@ -71,7 +71,7 @@ class LoginFrame(tk.Frame):
         login_button = tk.Button(
             form,
             text="Login",
-            command=self._attempt_login,
+            command=self.attempt_login,
             bg=COLORS["primary"],
             fg="white",
             activebackground=COLORS["primary_dark"],
@@ -96,10 +96,10 @@ class LoginFrame(tk.Frame):
 
         self.username_entry.insert(0, "admin")
         self.username_entry.focus_set()
-        self.password_entry.bind("<Return>", lambda event: self._attempt_login())
+        self.password_entry.bind("<Return>", lambda event: self.attempt_login())
         self.username_entry.bind("<Return>", lambda event: self.password_entry.focus_set())
 
-    def _add_logo(self, parent: tk.Widget) -> None:
+    def add_logo(self, parent: tk.Widget) -> None:
         logo_path = Path(__file__).resolve().parent.parent / "assets" / "logo.png"
         if logo_path.exists() and ImageTk is not None:
             try:
@@ -117,7 +117,7 @@ class LoginFrame(tk.Frame):
         fallback.create_text(48, 48, text="LM", fill="white", font=("Segoe UI", 24, "bold"))
         fallback.pack()
 
-    def _attempt_login(self) -> None:
+    def attempt_login(self) -> None:
         username = self.username_entry.get().strip()
         password = self.password_entry.get().strip()
         if not username or not password:

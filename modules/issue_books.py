@@ -128,7 +128,7 @@ class IssueBooksFrame(BaseModuleFrame):
         issue_panel.columnconfigure((0, 1), weight=1)
         return_panel.columnconfigure(0, weight=1)
 
-    def _load_member_options(self) -> None:
+    def load_member_options(self) -> None:
         members = self.db.fetch_members(order_by="name")
         self.member_options = {
             f"{member['member_code']} - {member['name']}": member["id"]
@@ -141,7 +141,7 @@ class IssueBooksFrame(BaseModuleFrame):
         else:
             self.member_var.set("")
 
-    def _load_book_options(self) -> None:
+    def load_book_options(self) -> None:
         books = self.db.report_available_books()
         self.book_options = {
             f"{book['book_code']} - {book['title']} (Avail: {book['available_quantity']})": book["id"]
@@ -154,15 +154,15 @@ class IssueBooksFrame(BaseModuleFrame):
         else:
             self.book_var.set("")
 
-    def _selected_member_id(self) -> int | None:
+    def selected_member_id(self) -> int | None:
         return self.member_options.get(self.member_var.get())
 
-    def _selected_book_id(self) -> int | None:
+    def selected_book_id(self) -> int | None:
         return self.book_options.get(self.book_var.get())
 
     def issue_book(self) -> None:
-        member_id = self._selected_member_id()
-        book_id = self._selected_book_id()
+        member_id = self.selected_member_id()
+        book_id = self.selected_book_id()
         if member_id is None or book_id is None:
             messagebox.showwarning("Selection Required", "Select both a member and a book.")
             return
@@ -207,12 +207,12 @@ class IssueBooksFrame(BaseModuleFrame):
 
     def refresh_data(self) -> None:
         self.selected_issue_id = None
-        self._load_member_options()
-        self._load_book_options()
+        self.load_member_options()
+        self.load_book_options()
         self.load_data()
         self.issue_id_label.configure(text="Select an issued record from the table below.")
 
-    def on_select(self) -> None:
+    def on_select(self, event) -> None:
         selection = self.tree.selection()
         if not selection:
             return

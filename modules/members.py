@@ -60,7 +60,7 @@ class MembersFrame(BaseModuleFrame):
         tk.Button(
             search_bar,
             text="Reset",
-            command=self._reset_search,
+            command=self.reset_search,
             bg=COLORS["secondary"],
             fg="white",
             activebackground="#475569",
@@ -158,12 +158,12 @@ class MembersFrame(BaseModuleFrame):
         form.columnconfigure(0, weight=1)
         form.columnconfigure(1, weight=1)
 
-    def _reset_search(self) -> None:
+    def reset_search(self) -> None:
         self.search_field_var.set("name")
         self.search_text_var.set("")
         self.load_data()
 
-    def _set_member_code(self) -> None:
+    def set_member_code(self) -> None:
         code = self.db.generate_member_code()
         self.member_code_entry.configure(state="normal")
         self.member_code_entry.delete(0, tk.END)
@@ -179,10 +179,10 @@ class MembersFrame(BaseModuleFrame):
             self.phone_entry,
             self.address_text,
         )
-        self._set_member_code()
+        self.set_member_code()
         self.tree.selection_remove(self.tree.selection())
 
-    def _collect_data(self) -> dict:
+    def collect_data(self) -> dict:
         return {
             "member_code": self.member_code_entry.get().strip(),
             "name": self.name_entry.get().strip(),
@@ -191,7 +191,7 @@ class MembersFrame(BaseModuleFrame):
             "address": self.address_text.get("1.0", tk.END).strip(),
         }
 
-    def _validate(self, data: dict) -> bool:
+    def validate_member(self, data: dict) -> bool:
         if not data["name"]:
             messagebox.showwarning("Validation Error", "Name is required.")
             return False
@@ -201,8 +201,8 @@ class MembersFrame(BaseModuleFrame):
         return True
 
     def add_member(self) -> None:
-        data = self._collect_data()
-        if not self._validate(data):
+        data = self.collect_data()
+        if not self.validate_member(data):
             return
         try:
             self.db.add_member(data)
@@ -260,7 +260,7 @@ class MembersFrame(BaseModuleFrame):
         )
 
     def refresh_data(self) -> None:
-        self._set_member_code()
+        self.set_member_code()
         self.load_data()
 
     def sort_by(self, column: str) -> None:
@@ -271,7 +271,7 @@ class MembersFrame(BaseModuleFrame):
             self.sort_ascending = True
         self.load_data()
 
-    def on_select(self) -> None:
+    def on_select(self, event) -> None:
         selection = self.tree.selection()
         if not selection:
             return

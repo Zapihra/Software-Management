@@ -110,22 +110,22 @@ class LibraryDatabase:
         """
         with self._connection() as connection:
             connection.executescript(schema)
-        self._migrate_students_table()
-        self._seed_default_admin()
-        self._seed_default_settings()
+        self.migrate_students_table()
+        self.seed_default_admin()
+        self.seed_default_settings()
 
-    def _table_columns(self, table_name: str) -> set[str]:
+    def table_columns(self, table_name: str) -> set[str]:
         with self._connection() as connection:
             rows = connection.execute(f"PRAGMA table_info({table_name})").fetchall()
         return {row["name"] for row in rows}
 
-    def _migrate_students_table(self) -> None:
-        if "user_id" in self._table_columns("students"):
+    def migrate_students_table(self) -> None:
+        if "user_id" in self.table_columns("students"):
             return
         with self._connection() as connection:
             connection.execute("ALTER TABLE students ADD COLUMN user_id INTEGER")
 
-    def _seed_default_admin(self) -> None:
+    def seed_default_admin(self) -> None:
         if self.get_user_by_username(self.DEFAULT_ADMIN_USERNAME):
             return
         self.create_user(
@@ -134,7 +134,7 @@ class LibraryDatabase:
             self.DEFAULT_ADMIN_ROLE,
         )
 
-    def _seed_default_settings(self) -> None:
+    def seed_default_settings(self) -> None:
         defaults = {
             "library_name": "Library Management System",
             "address": "",
@@ -184,10 +184,10 @@ class LibraryDatabase:
 
     def create_user(self, username: str, password: str, role: str = "staff") -> int:
         with self._connection() as connection:
-            cursor = self._create_user_record(connection, username, password, role)
+            cursor = self.create_user_record(connection, username, password, role)
             return cursor.lastrowid
 
-    def _create_user_record(
+    def create_user_record(
         self,
         connection: sqlite3.Connection,
         username: str,
@@ -300,7 +300,7 @@ class LibraryDatabase:
             connection.execute("DELETE FROM users WHERE id = ?", (user_id,))
 
     @staticmethod
-    def _next_code(prefix: str, existing_codes: List[str], width: int = 4) -> str:
+    def next_code(prefix: str, existing_codes: List[str], width: int = 4) -> str:
         max_number = 0
         for code in existing_codes:
             try:
@@ -315,23 +315,23 @@ class LibraryDatabase:
             rows = connection.execute(
                 "SELECT book_code FROM books ORDER BY id DESC"
             ).fetchall()
-        return self._next_code("BK", [row["book_code"] for row in rows])
+        return self.next_code("BK", [row["book_code"] for row in rows])
 
     def generate_member_code(self) -> str:
         with self._connection() as connection:
             rows = connection.execute(
                 "SELECT member_code FROM members ORDER BY id DESC"
             ).fetchall()
-        return self._next_code("MB", [row["member_code"] for row in rows])
+        return self.next_code("MB", [row["member_code"] for row in rows])
 
     def generate_student_code(self) -> str:
         with self._connection() as connection:
             rows = connection.execute(
                 "SELECT student_code FROM students ORDER BY id DESC"
             ).fetchall()
-        return self._next_code("ST", [row["student_code"] for row in rows])
+        return self.next_code("ST", [row["student_code"] for row in rows])
 
-    def _book_exists_with_isbn(self, isbn: str, exclude_id: Optional[int] = None) -> bool:
+    def book_exists_with_isbn(self, isbn: str, exclude_id: Optional[int] = None) -> bool:
         query = "SELECT 1 FROM books WHERE isbn = ?"
         params: Tuple[Any, ...] = (isbn.strip(),)
         if exclude_id is not None:
@@ -343,7 +343,7 @@ class LibraryDatabase:
 
     def add_book(self, data: Dict[str, Any]) -> int:
         isbn = data["isbn"].strip()
-        if self._book_exists_with_isbn(isbn):
+        if self.book_exists_with_isbn(isbn):
             raise ValueError("A book with this ISBN already exists.")
 
         book_code = data.get("book_code") or self.generate_book_code()
@@ -374,7 +374,7 @@ class LibraryDatabase:
             return cursor.lastrowid
 
     def update_book(self, book_id: int, data: Dict[str, Any]) -> None:
-        if self._book_exists_with_isbn(data["isbn"], exclude_id=book_id):
+        if self.book_exists_with_isbn(data["isbn"], exclude_id=book_id):
             raise ValueError("A book with this ISBN already exists.")
 
         with self._connection() as connection:
@@ -476,7 +476,7 @@ class LibraryDatabase:
             ).fetchone()
         return dict(row) if row else None
 
-    def _member_exists(self, member_code: str, email: Optional[str], phone: Optional[str], exclude_id: Optional[int] = None) -> bool:
+    def member_exists(self, member_code: str, email: Optional[str], phone: Optional[str], exclude_id: Optional[int] = None) -> bool:
         clauses = ["member_code = ?"]
         params: List[Any] = [member_code.strip()]
         if email:
@@ -499,7 +499,7 @@ class LibraryDatabase:
         member_code = data.get("member_code") or self.generate_member_code()
         email = data.get("email", "").strip() or None
         phone = data.get("phone", "").strip() or None
-        if self._member_exists(member_code, email, phone):
+        if self.member_exists(member_code, email, phone):
             raise ValueError("A member with the same code, email, or phone already exists.")
 
         with self._connection() as connection:
@@ -521,7 +521,7 @@ class LibraryDatabase:
     def update_member(self, member_id: int, data: Dict[str, Any]) -> None:
         email = data.get("email", "").strip() or None
         phone = data.get("phone", "").strip() or None
-        if self._member_exists(data["member_code"], email, phone, exclude_id=member_id):
+        if self.member_exists(data["member_code"], email, phone, exclude_id=member_id):
             raise ValueError("A member with the same code, email, or phone already exists.")
 
         with self._connection() as connection:
@@ -593,7 +593,7 @@ class LibraryDatabase:
             ).fetchone()
         return dict(row) if row else None
 
-    def _student_exists(
+    def student_exists(
         self,
         student_code: str,
         roll_no: str,
@@ -636,9 +636,9 @@ class LibraryDatabase:
                 ).fetchone()
                 if existing_user:
                     raise ValueError("A user with this username already exists.")
-                user_id = self._create_user_record(connection, username, password, role).lastrowid
+                user_id = self.create_user_record(connection, username, password, role).lastrowid
 
-            if self._student_exists(student_code, data["roll_no"], email, phone):
+            if self.student_exists(student_code, data["roll_no"], email, phone):
                 raise ValueError("A student with the same code, roll number, email, or phone already exists.")
 
             cursor = connection.execute(
@@ -712,7 +712,7 @@ class LibraryDatabase:
                         raise ValueError("A user with this username already exists.")
                     user_id = self._create_user_record(connection, username, password, role).lastrowid
 
-            if self._student_exists(data["student_code"], data["roll_no"], email, phone, exclude_id=student_id):
+            if self.student_exists(data["student_code"], data["roll_no"], email, phone, exclude_id=student_id):
                 raise ValueError("A student with the same code, roll number, email, or phone already exists.")
 
             connection.execute(

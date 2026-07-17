@@ -59,7 +59,7 @@ class UsersFrame(BaseModuleFrame):
         tk.Button(
             controls,
             text="Reset",
-            command=self._reset_search,
+            command=self.reset_search,
             bg=COLORS["secondary"],
             fg="white",
             relief="flat",
@@ -166,7 +166,7 @@ class UsersFrame(BaseModuleFrame):
 
         form.columnconfigure(0, weight=1)
 
-    def _reset_search(self) -> None:
+    def reset_search(self) -> None:
         self.search_field_var.set("username")
         self.search_text_var.set("")
         self.load_data()
@@ -181,7 +181,7 @@ class UsersFrame(BaseModuleFrame):
         self.role_var.set("staff")
         self.tree.selection_remove(self.tree.selection())
 
-    def _collect_data(self) -> dict:
+    def collect_data(self) -> dict:
         return {
             "username": self.username_entry.get().strip(),
             "password": self.password_entry.get().strip(),
@@ -189,7 +189,7 @@ class UsersFrame(BaseModuleFrame):
             "role": self.role_var.get().strip(),
         }
 
-    def _validate_add(self, data: dict) -> bool:
+    def validate_add_user(self, data: dict) -> bool:
         if not data["username"]:
             messagebox.showwarning("Validation Error", "Username is required.")
             return False
@@ -201,7 +201,7 @@ class UsersFrame(BaseModuleFrame):
             return False
         return True
 
-    def _validate_update(self, data: dict) -> bool:
+    def validate_update_user(self, data: dict) -> bool:
         if not data["username"]:
             messagebox.showwarning("Validation Error", "Username is required.")
             return False
@@ -211,8 +211,8 @@ class UsersFrame(BaseModuleFrame):
         return True
 
     def add_user(self) -> None:
-        data = self._collect_data()
-        if not self._validate_add(data):
+        data = self.collect_data()
+        if not self.validate_add_user(data):
             return
         try:
             self.db.create_user(data["username"], data["password"], data["role"])
@@ -226,8 +226,8 @@ class UsersFrame(BaseModuleFrame):
         if self.selected_user_id is None:
             messagebox.showwarning("Selection Required", "Select a user to update.")
             return
-        data = self._collect_data()
-        if not self._validate_update(data):
+        data = self.collect_data()
+        if not self.validate_update_user(data):
             return
         try:
             self.db.update_user(
@@ -276,7 +276,7 @@ class UsersFrame(BaseModuleFrame):
             self.sort_ascending = True
         self.load_data()
 
-    def on_select(self) -> None:
+    def on_select(self, event) -> None:
         selection = self.tree.selection()
         if not selection:
             return

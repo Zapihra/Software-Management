@@ -64,10 +64,10 @@ class DashboardFrame(BaseModuleFrame):
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.charts_wrap)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
 
-        self._style_axes(self.ax1)
-        self._style_axes(self.ax2)
+        self.style_axes(self.ax1)
+        self.style_axes(self.ax2)
 
-    def _style_axes(self, ax) -> None:
+    def style_axes(self, ax) -> None:
         ax.set_facecolor(COLORS["bg"])
         ax.tick_params(colors=COLORS["muted"])
         ax.xaxis.label.set_color(COLORS["muted"])
@@ -85,13 +85,13 @@ class DashboardFrame(BaseModuleFrame):
         self.stat_labels["overdue_books"].configure(text=str(stats["overdue_books"]))
         self.stat_labels["total_fines"].configure(text=f"Tk {stats['total_fines']:.2f}")
 
-        self._update_charts()
+        self.update_charts()
 
-    def _update_charts(self) -> None:
+    def update_charts(self) -> None:
         self.ax1.clear()
         self.ax2.clear()
-        self._style_axes(self.ax1)
-        self._style_axes(self.ax2)
+        self.style_axes(self.ax1)
+        self.style_axes(self.ax2)
 
         trends = self.db.analytics_issue_trends(days=30)
         if trends:

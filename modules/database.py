@@ -1082,9 +1082,3 @@ class LibraryDatabase:
                 (limit,),
             ).fetchall()
         return [dict(row) for row in rows]
-
-    def search_all_books(self, text: str) -> List[Dict[str, Any]]:
-        return self.fetch_books(text, "title")
-
-    def search_all_members(self, text: str) -> List[Dict[str, Any]]:
-        return self.fetch_members(text, "name")

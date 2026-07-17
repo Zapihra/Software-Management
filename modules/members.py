@@ -271,7 +271,7 @@ class MembersFrame(BaseModuleFrame):
             self.sort_ascending = True
         self.load_data()
 
-    def on_select(self, event) -> None:
+    def on_select(self) -> None:
         selection = self.tree.selection()
         if not selection:
             return

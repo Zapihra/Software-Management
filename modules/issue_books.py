@@ -212,7 +212,7 @@ class IssueBooksFrame(BaseModuleFrame):
         self.load_data()
         self.issue_id_label.configure(text="Select an issued record from the table below.")
 
-    def on_select(self, event) -> None:
+    def on_select(self) -> None:
         selection = self.tree.selection()
         if not selection:
             return

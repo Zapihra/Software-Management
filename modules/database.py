@@ -898,6 +898,30 @@ class LibraryDatabase:
             )
         return fine
 
+    def pay_fine(self, issue_id: int):
+        with self._connection() as connection:
+            issue = connection.execute(
+                """
+                SELECT * FROM issued_books
+                WHERE id = ?
+                """,
+                (issue_id,),
+            ).fetchone()
+            if not issue:
+                raise ValueError("Issue record not found.")
+            if issue["fine_amount"] == 0:
+                raise ValueError("There are no fines")
+            connection.execute(
+                """
+                UPDATE issued_books
+                SET fine_amount = ?
+                WHERE id = ?
+                """,
+                (0, issue_id),
+            )
+
+        return
+
     def fetch_issued_books(self, status: Optional[str] = None) -> List[Dict[str, Any]]:
         query = """
             SELECT

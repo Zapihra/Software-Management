@@ -59,7 +59,7 @@ class IssueBooksFrame(BaseModuleFrame):
         ).grid(row=5, column=0, sticky="ew", padx=6, pady=(8, 0))
 
         return_panel = tk.Frame(top, bg=COLORS["panel"], bd=0, highlightthickness=1, highlightbackground="#22314f")
-        return_panel.pack(side="right", fill="both", expand=True)
+        return_panel.pack(side="left", fill="both", expand=True)
         return_panel.configure(padx=18, pady=18)
 
         tk.Label(return_panel, text="Return Book", bg=COLORS["panel"], fg=COLORS["text"], font=FONTS["heading"]).grid(
@@ -91,6 +91,35 @@ class IssueBooksFrame(BaseModuleFrame):
 
         table_wrap = tk.Frame(bottom, bg=COLORS["panel"], padx=10, pady=10)
         table_wrap.pack(fill="both", expand=True)
+
+        fine_panel = tk.Frame(top, bg=COLORS["panel"], bd=0, highlightthickness=1, highlightbackground="#22314f")
+        fine_panel.pack(side="right", fill="both", expand=True)
+        fine_panel.configure(padx=18, pady=18)
+        
+        tk.Label(fine_panel, text="Pay fine", bg=COLORS["panel"], fg=COLORS["text"], font=FONTS["heading"]).grid(
+            row=0, column=0, sticky="w", pady=(0, 12)
+        )
+
+        self.fine_id_label = tk.Label(
+            fine_panel,
+            text="Select a fined record from the table below.",
+            bg=COLORS["panel"],
+            fg=COLORS["muted"],
+            font=FONTS["body"],
+            wraplength=360,
+            justify="left",
+        )
+        self.fine_id_label.grid(row=1, column=0, sticky="w", padx=6, pady=(0, 14))
+
+        tk.Button(
+            fine_panel,
+            text="Pay fine",
+            command=self.pay_fine_book,
+            bg=COLORS["success"],
+            fg="white",
+            relief="flat",
+            font=FONTS["button"],
+        ).grid(row=2, column=0, sticky="ew", padx=6)
 
         columns = [
             "id",
@@ -184,6 +213,17 @@ class IssueBooksFrame(BaseModuleFrame):
         except Exception as exc:
             messagebox.showerror("Error", str(exc))
 
+    def pay_fine_book(self) -> None:
+        if self.selected_issue_id is None:
+            messagebox.showwarning("Selection Required", "Select an issued record to pay a fine.")
+            return
+        try:
+            self.db.pay_fine(self.selected_issue_id)
+            messagebox.showinfo("Success", f"Book fine paid")
+            self.refresh_data()
+        except Exception as exc:
+            messagebox.showerror("Error", str(exc))
+
     def load_data(self) -> None:
         issues = self.db.fetch_issued_books()
         self.fill_treeview(
@@ -220,3 +260,4 @@ class IssueBooksFrame(BaseModuleFrame):
         self.selected_issue_id = int(values[0])
         status_text = f"Selected Issue ID: {values[0]} | Status: {values[8]}"
         self.issue_id_label.configure(text=status_text)
+        self.fine_id_label.configure(text=status_text)
